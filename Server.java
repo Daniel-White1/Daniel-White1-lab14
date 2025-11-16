@@ -14,9 +14,10 @@ public class Server{
         }
     }
 
-    public void serve(){
+    public void serve(int a){
         //Accepts all incoming  connections
-        while (true) {
+        int i = 0;
+        while (i < a) {
             try {
                 //Accepts the connection 
                 Socket clientSocket = this.sock.accept();
@@ -25,6 +26,7 @@ public class Server{
             } catch (Exception e) {
                 // TODO: handle exception
             }
+            i++;
         }
     }
 
@@ -61,7 +63,7 @@ public class Server{
             }
         }
     }
-    
+
     public void disconnect(){
 
     }
