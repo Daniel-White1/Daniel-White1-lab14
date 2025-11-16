@@ -1,7 +1,11 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Server{
     public ServerSocket sock;
@@ -14,6 +18,12 @@ public class Server{
         }
     }
 
+    private ArrayList<LocalDateTime> connectedTimes = new ArrayList<>();
+
+    public ArrayList<LocalDateTime> getConnectedTimes(){
+        return connectedTimes;
+    }
+
     public void serve(int a){
         //Accepts all incoming  connections
         int i = 0;
@@ -21,6 +31,9 @@ public class Server{
             try {
                 //Accepts the connection 
                 Socket clientSocket = this.sock.accept();
+
+                //Add the time to the array of times
+                connectedTimes.add(LocalDateTime.now());
 
                 (new ClientHandler(clientSocket)).start();
             } catch (Exception e) {
@@ -39,36 +52,32 @@ public class Server{
 
         public void run(){
             PrintWriter out = null; 
-            BufferedWriter in = null;
-            try {
+            BufferedReader in = null;
+            try{
                 out = new PrintWriter(sock.getOutputStream());
-                in = new BufferedWriter(new InputStreamReader(sock.getInputStream()));
+                in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-                //read and echo back to eachother
-                while (true) {
+                //read and echo back forever!
+                while(true){
                     String msg = in.readLine();
-                    //if the mesage is null then close the remote
-                    if (msg == null) {
-                        break;
-                        out.println(msg);
-                        out.flush();
-                    }
+                    if(msg == null) break; //read null, remote closed
+                    out.println(msg);
+                    out.flush();
                 }
 
                 out.close();
                 in.close();
                 sock.close();
-            } catch (Exception e) {
+            } catch (Exception e){
 
             }
         }
     }
-
     public void disconnect(){
-
-    }
-
-    public void getConnectedTimes(){
-
+        try {
+            sock.close();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 }
